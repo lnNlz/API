@@ -1,5 +1,10 @@
 package com.javaEngine;
 
+import java.awt.Canvas;
+import java.awt.Graphics2D;
+import java.awt.image.BufferStrategy;
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 /**
@@ -9,24 +14,33 @@ import javax.swing.JFrame;
  * @since 1.0
  * @version 1.0
  */
-public final class JavaEngine implements Runnable {
+public final class JavaEngine extends Canvas implements Runnable {
+	private static final long serialVersionUID = 1L;
+
 	private static JavaEngine engine;
 	
 	private JFrame frame;
 	private Thread thread;
 	
 	// Run variables
-	private double TPS = 60.0; // Ticks per second
-	private int FPS = 0; // Frames per second
-	private int TICKS = 0; // Current Ticks
+	private static double TPS = 60.0; // Ticks per second
+	private static int FPS = 0; // Frames per second
+	private static int TICKS = 0; // Current Ticks
 	
+	// Objects
+	private final ArrayList<Obj> objects;
+	
+	// Others
+	private Graphics2D graphics2D;
 	
 	/**
 	 * <b>YOU CANNOT INITIALIZE {@code this class} </b>
 	 * , to get the instance of {@code this class},
 	 * call {@link #get()}
 	 */
-	private JavaEngine() {}
+	private JavaEngine() {
+		objects = new ArrayList<Obj> ();
+	}
 	
 	// ************************************************************
 	// Local methods
@@ -42,13 +56,15 @@ public final class JavaEngine implements Runnable {
 		// Initialized thread
 		if(thread != null) return false;
 		
+		// Show window
+		if(frame != null) {
+			frame.add(this);
+			frame.setVisible(true);
+		}
+		
 		// Thread starting
 		thread = new Thread(this);
 		thread.start();
-		
-		// Show window
-		if(frame != null)
-			frame.setVisible(true);
 		
 		return true;
 	}
@@ -70,15 +86,15 @@ public final class JavaEngine implements Runnable {
 		// Uninitialized thread
 		if(thread == null) return false;
 		
-		// Thread stopping
-		thread.join();
-		thread = null;
-		
 		// Close window
 		if(frame != null) {
 			frame.dispose();
 			frame = null;
 		}
+		
+		// Thread stopping
+		thread.join();
+		thread = null;
 		
 		// Close the program
 		if(closeProgramIfSuccessful)
@@ -106,9 +122,33 @@ public final class JavaEngine implements Runnable {
 			
 			// Update
 			while(engine_deltaTime >= 0) {
+				// Update objects
+				for(final Obj obj : objects) obj.onUpdate(elapsedTime);
+				
 				TICKS++; // increment
 				engine_deltaTime--; // decrement
 			}
+			
+			
+			// Clean this part
+			final BufferStrategy bufferStrategy = getBufferStrategy();
+			if(bufferStrategy == null) {
+				// TODO: allow custom buffer_int
+				createBufferStrategy(3);
+				
+				continue;
+			}
+			
+			graphics2D = (Graphics2D)bufferStrategy.getDrawGraphics();
+			
+			// TODO: Allow optional clearing
+			graphics2D.clearRect(0, 0, getWidth(), getHeight());
+			
+			// Render objects
+			for(final Obj obj : objects) obj.onRender(graphics2D);
+			
+			graphics2D.dispose();
+			bufferStrategy.show();
 			
 			// Frame
 			FPS++;
@@ -117,6 +157,8 @@ public final class JavaEngine implements Runnable {
 			if(System.currentTimeMillis() - engineTimer > 1_000)  {
 				// Reset timer
 				engineTimer += 1_000;
+				// Increment elapsed time
+				elapsedTime++;
 				
 				// Reset
 				FPS = 0;
@@ -190,6 +232,163 @@ public final class JavaEngine implements Runnable {
 		return display(frame);
 	}
 	
+	/**
+	 * Adds the {@code Object} to the list where it will be handled
+	 * 
+	 * @param obj
+	 * - Object to add : {@code Obj}
+	 * 
+	 * @return
+	 * {@code true} if the object has been added {@code false} otherwise
+	 */
+	public boolean add(final Obj obj) {
+		// Null object
+		if(obj == null) return false;
+		
+		if(objects.add(obj)) {
+			obj.onStart();
+			return true;
+		}
+		
+		// Failed to add the object
+		return false;
+	}
+	
+	/**
+	 * Removes the {@code Object} from the list
+	 * 
+	 * @param obj
+	 * - Object to remove : {@code Obj}
+	 * 
+	 * @return
+	 * {@code true} if the object has been removed; {@code false} otherwise
+	 */
+	public boolean remove(final Obj obj) {
+		// Null object
+		if(obj == null) return false;
+		
+		if(objects.remove(obj)) {
+			obj.onStart();
+			return true;
+		}
+		
+		// Failed to remove the object
+		return false;
+	}
+	
+	/**
+	 * Removes the {@code Object} from the index from the list
+	 * 
+	 * @param index
+	 * - Index where the object is located : {@code Obj}
+	 * 
+	 * @return
+	 * {@code true} if the object has been removed; {@code false} otherwise
+	 * 
+	 * @see #remove(Obj)
+	 */
+	public boolean remove(final int index) {
+		// Invalid index (out of bounds)
+		if(index < 0 || index >= objects.size()) return false;
+		
+		return remove(objects.get(index));
+	}
+	
+	/**
+	 * @return
+	 * {@code size} of the list
+	 */
+	public int objSize() {
+		return objects.size();
+	}
+	
+	/**
+	 * Returns the {@code object} from the index specified
+	 * 
+	 * @param index
+	 * - Index of the object
+	 * 
+	 * @return
+	 * {@code Object} if index is valid; {@code null} otherwise
+	 */
+	public Obj get(final int index) {
+		// Invalid index
+		if(index < 0 || index >= objSize()) return null;
+		
+		return objects.get(index);
+	}
+	
+	/**
+	 * Returns whether the list contains the object specified
+	 * 
+	 * @param obj
+	 * - Object to find
+	 * 
+	 * @return
+	 * {@code true} if the object is in the list; {@code false} otherwise
+	 */
+	public boolean contains(final Obj obj) {
+		return objects.contains(obj);
+	}
+	
+	// Renders
+	
+	/**
+	 * Clears the screen to draw more {@code stuffs}
+	 */
+	public void clearScreen() {
+		if(graphics2D != null)
+			graphics2D.clearRect(0, 0, frame.getWidth(), frame.getHeight());
+	}
+	
+	// ************************************************************
+	// Getters and Setters
+	// ************************************************************
+	
+	/**
+	 * @return
+	 * {@code Engine} frames per second
+	 */
+	public int getFPS() {
+		return FPS;
+	}
+	
+	/**
+	 * @return
+	 * {@code Engine} ticks per second
+	 */
+	public double getTPS() {
+		return TPS;
+	}
+	
+	/**
+	 * Sets ticks per second value to the value specified
+	 * 
+	 * @param newTPSValue
+	 * - New value for TPS
+	 */
+	public void setTPS(final double newTPSValue) {
+		TPS = newTPSValue;
+	}
+	
+	/**
+	 * @return
+	 * {@code Engine} current ticks
+	 */
+	public int getTicks() {
+		return TICKS;
+	}
+	
+	@Override
+	public int getWidth() {
+		return frame.getWidth();
+	}
+	
+	@Override
+	public int getHeight() {
+		return frame.getHeight();
+	}
+	
 	// ************************************************************
 	// Static methods
 	// ************************************************************
@@ -216,6 +415,7 @@ public final class JavaEngine implements Runnable {
 		if(engine != null) return false;
 		
 		engine = new JavaEngine();
+		
 		return true;
 	}
  }
