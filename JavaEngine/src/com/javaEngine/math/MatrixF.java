@@ -156,6 +156,7 @@ public class MatrixF {
 	 * @return
 	 * - {@code Output Matrix} if operation is successful and both {@code matrices} has the same dimension; {@code null} otherwise
 	 */
+	@Deprecated
 	public MatrixF multiply(final MatrixF mat) {
 		final int size = size();
 		

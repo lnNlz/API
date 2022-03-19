@@ -66,11 +66,20 @@ public final class Mathf {
 		return value > maximumValue ? maximumValue : (value < minimumValue ? minimumValue : value);
 	}
 	
-	// TEST
-	// TODO: Remove this
-	public static Vec3F multiply(final Vec3F input, final MatrixF matrix) {
+	/**
+	 * Multiplies {@code Vector 3D float} to {@code Matrix 4x4 Float}
+	 * 
+	 * @param input
+	 * - {@code Vector 3D float} to multiply
+	 * 
+	 * @param matrix
+	 * - {@code Matrix 4x4 Float} to multiply
+	 * 
+	 * @return
+	 * - {@code output vector} if operation is successful; {@code null} otherwise
+	 */
+	public static Vec3F multiplyVecToMat(final Vec3F input, final MatrixF matrix) {
 		if(matrix.size() != 4) return null;
-		
 		final Vec3F output = new Vec3F();
 		
 		output.setX(
@@ -100,7 +109,7 @@ public final class Mathf {
 				input.getZ() * matrix.get(2, 3) +
 				matrix.get(3, 3);
 		
-		// Normalize
+		// Transform 4D back to 3D
 		if(w != 0.0F) {
 			output.setX(output.getX() / w);
 			output.setY(output.getY() / w);

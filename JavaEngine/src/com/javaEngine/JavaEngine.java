@@ -1,6 +1,7 @@
 package com.javaEngine;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
@@ -394,6 +395,16 @@ public final class JavaEngine extends Canvas implements Runnable {
 	// ************************************************************
 	
 	/**
+	 * Sets the window's {@code background color} to the color specified
+	 * 
+	 * @param color
+	 * - Window's color
+	 */
+	public static void setBackgroundColor(final Color color) {
+		engine.frame.getContentPane().setBackground(color);
+	}
+	
+	/**
 	 * This returns the {@code engine instance},
 	 * 
 	 * <br>
@@ -415,6 +426,7 @@ public final class JavaEngine extends Canvas implements Runnable {
 		if(engine != null) return false;
 		
 		engine = new JavaEngine();
+		engine.addKeyListener(new Key());
 		
 		return true;
 	}

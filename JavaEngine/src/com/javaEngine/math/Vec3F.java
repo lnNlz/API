@@ -78,6 +78,42 @@ public class Vec3F {
 	}
 	
 	/**
+	 * TODO: Document this
+	 * @param anotherVec3F
+	 * @return
+	 */
+	public Vec3F add(final Vec3F anotherVec3F) {
+		return new Vec3F(anotherVec3F.x + x, anotherVec3F.y + y, anotherVec3F.z + z);
+	}
+	
+	/**
+	 * TODO: document this
+	 * @param scalar
+	 * @return
+	 */
+	public Vec3F add(final float scalar) {
+		return add(new Vec3F(scalar));
+	}
+	
+	/**
+	 * TODO: document this
+	 * @param scalar
+	 * @return
+	 */
+	public Vec3F multiply(final float scalar) {
+		return new Vec3F(x * scalar, y * scalar, z * scalar);
+	}
+	
+	/**
+	 * TODO: document this
+	 * @param scalar
+	 * @return
+	 */
+	public Vec3F multiply(final Vec3F vec) {
+		return new Vec3F(x * vec.x, y * vec.y, z * vec.z);
+	}
+	
+	/**
 	 * @return
 	 * {@code slope} of this vector
 	 * <br>
@@ -155,6 +191,14 @@ public class Vec3F {
 	 */
 	public Vec3 toVector3D() {
 		return new Vec3((int)x, (int)y, (int)z);
+	}
+	
+	/**
+	 * @return
+	 * {@code Vector 2D float} that only contains {@code x} and {@code y} value, removing {@code z}
+	 */
+	public Vec2F toVector2DFloat() {
+		return new Vec2F(x, y);
 	}
 	
 	/**
