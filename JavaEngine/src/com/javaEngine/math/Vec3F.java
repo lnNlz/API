@@ -78,39 +78,76 @@ public class Vec3F {
 	}
 	
 	/**
-	 * TODO: Document this
+	 * Adds {@code every value} of this vector to all the value of the {@code given vector}
+	 *  
 	 * @param anotherVec3F
+	 * - {@code vector} to add 
+	 * 
 	 * @return
+	 * {@code Added} Vec3F
+	 * 
+	 * @see #add(float)
 	 */
 	public Vec3F add(final Vec3F anotherVec3F) {
 		return new Vec3F(anotherVec3F.x + x, anotherVec3F.y + y, anotherVec3F.z + z);
 	}
 	
 	/**
-	 * TODO: document this
-	 * @param scalar
+	 * Adds {@code every value} of this vector to the value given
+	 *  
+	 * @param value
+	 * - {@code value} to add
+	 * 
 	 * @return
+	 * {@code Added} value
+	 * 
+	 * @see #add(Vec3F)
 	 */
-	public Vec3F add(final float scalar) {
-		return add(new Vec3F(scalar));
+	public Vec3F add(final float value) {
+		return add(new Vec3F(value));
 	}
 	
 	/**
-	 * TODO: document this
-	 * @param scalar
+	 * Subtracts {@code every value} of this vector to all the value of the {@code given vector}
+	 *  
+	 * @param anotherVec3F
+	 * - {@code vector} to subtract 
+	 * 
 	 * @return
+	 * {@code Subtracted} Vec3F
+	 */
+	public Vec3F subtract(final Vec3F anotherVec3F) {
+		return new Vec3F(x - anotherVec3F.x, y - anotherVec3F.y, z - anotherVec3F.z);
+	}
+	
+	/**
+	 * Multiplies {@code every value} of this vector to the scalar given
+	 * 
+	 * @param scalar
+	 * - {@code Scalar} value to multiply
+	 * 
+	 * @return
+	 * {@code Multiplied} Vector3F
+	 * 
+	 * @see #multiply(Vec3F)
 	 */
 	public Vec3F multiply(final float scalar) {
 		return new Vec3F(x * scalar, y * scalar, z * scalar);
 	}
 	
 	/**
-	 * TODO: document this
-	 * @param scalar
+	 * Multiplies {@code every value} of this vector to every value of the {@code vector} given
+	 * 
+	 * @param anotherVec3
+	 * - {@code Vector3F} value to multiply
+	 * 
 	 * @return
+	 * {@code Multiplied} Vector3F
+	 * 
+	 * @see #multiply(float)
 	 */
-	public Vec3F multiply(final Vec3F vec) {
-		return new Vec3F(x * vec.x, y * vec.y, z * vec.z);
+	public Vec3F multiply(final Vec3F anotherVec3) {
+		return new Vec3F(x * anotherVec3.x, y * anotherVec3.y, z * anotherVec3.z);
 	}
 	
 	/**
@@ -178,9 +215,9 @@ public class Vec3F {
 		final MatrixF matrix = new MatrixF(4);
 		
 		matrix.set(0, 0, x);
-		matrix.set(1, 1, y);
-		matrix.set(2, 2, z);
-		matrix.set(3, 3, 1); // w
+		matrix.set(0, 1, y);
+		matrix.set(0, 2, z);
+		matrix.set(0, 3, 1); // w
 		
 		return matrix;
 	}

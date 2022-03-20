@@ -34,6 +34,10 @@ public final class JavaEngine extends Canvas implements Runnable {
 	// Others
 	private Graphics2D graphics2D;
 	
+	// Booleans
+	private static boolean printFPSandTPS = true;
+	private static boolean autoClearCanvas = true;
+	
 	/**
 	 * <b>YOU CANNOT INITIALIZE {@code this class} </b>
 	 * , to get the instance of {@code this class},
@@ -142,8 +146,9 @@ public final class JavaEngine extends Canvas implements Runnable {
 			
 			graphics2D = (Graphics2D)bufferStrategy.getDrawGraphics();
 			
-			// TODO: Allow optional clearing
-			graphics2D.clearRect(0, 0, getWidth(), getHeight());
+			// Clears the canvas
+			if(autoClearCanvas)
+				graphics2D.clearRect(0, 0, getWidth(), getHeight());
 			
 			// Render objects
 			for(final Obj obj : objects) obj.onRender(graphics2D);
@@ -158,8 +163,13 @@ public final class JavaEngine extends Canvas implements Runnable {
 			if(System.currentTimeMillis() - engineTimer > 1_000)  {
 				// Reset timer
 				engineTimer += 1_000;
+				
 				// Increment elapsed time
 				elapsedTime++;
+				
+				// Print if enabled
+				if(printFPSandTPS)
+					System.out.println("FPS: " + FPS + " || TICKS : " + TICKS);
 				
 				// Reset
 				FPS = 0;
@@ -429,5 +439,41 @@ public final class JavaEngine extends Canvas implements Runnable {
 		engine.addKeyListener(new Key());
 		
 		return true;
+	}
+	
+	/**
+	 * @return
+	 * {@code true} if this is allowed to print {@code FPS} and {@code TICKS} per second
+	 */
+	public static boolean shouldPrintFPSandTPS() {
+		return printFPSandTPS;
+	}
+	
+	/**
+	 * Sets whether {@code this} is allowed to print FPS and Ticks every second
+	 * 
+	 * @param printFPSandTPS
+	 * - {@code true} if FPS and Ticks should be printed
+	 */
+	public static void setPrintFPSandTPS(boolean printFPSandTPS) {
+		JavaEngine.printFPSandTPS = printFPSandTPS;
+	}
+
+	/**
+	 * @return
+	 * {@code true} if canvas is being cleared per render
+	 */
+	public static boolean isAutoClearCanvas() {
+		return autoClearCanvas;
+	}
+	
+	/**
+	 * Sets whether canvas should be cleared every time render is called
+	 * 
+	 * @param autoClearCanvas
+	 * - {@code true} if canvas should be cleared
+	 */
+	public static void setAutoClearCanvas(boolean autoClearCanvas) {
+		JavaEngine.autoClearCanvas = autoClearCanvas;
 	}
  }

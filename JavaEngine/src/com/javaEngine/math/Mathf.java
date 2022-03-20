@@ -79,9 +79,13 @@ public final class Mathf {
 	 * - {@code output vector} if operation is successful; {@code null} otherwise
 	 */
 	public static Vec3F multiplyVecToMat(final Vec3F input, final MatrixF matrix) {
+		// Invalid size
 		if(matrix.size() != 4) return null;
+		
+		// Vector 3D float to return
 		final Vec3F output = new Vec3F();
 		
+		// First element
 		output.setX(
 					input.getX() * matrix.get(0, 0) +
 					input.getY() * matrix.get(1, 0) +
@@ -89,6 +93,7 @@ public final class Mathf {
 					matrix.get(3, 0)
 				);
 		
+		// Second element
 		output.setY(
 				input.getX() * matrix.get(0, 1) +
 				input.getY() * matrix.get(1, 1) +
@@ -96,6 +101,7 @@ public final class Mathf {
 				matrix.get(3, 1)
 				);
 		
+		// Third element
 		output.setZ(
 				input.getX() * matrix.get(0, 2) +
 				input.getY() * matrix.get(1, 2) +
@@ -103,6 +109,7 @@ public final class Mathf {
 				matrix.get(3, 2)
 				);
 		
+		// Fourth element
 		final float w = 
 				input.getX() * matrix.get(0, 3) +
 				input.getY() * matrix.get(1, 3) +

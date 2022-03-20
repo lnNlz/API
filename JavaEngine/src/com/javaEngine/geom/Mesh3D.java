@@ -8,11 +8,23 @@ import com.javaEngine.JavaEngine;
 import com.javaEngine.math.Mathf;
 import com.javaEngine.math.Vec3F;
 import com.javaEngine.math.matrix.ProjectionMatrix;
+import com.javaEngine.math.matrix.XRotationMatrix;
+import com.javaEngine.math.matrix.YRotationMatrix;
+import com.javaEngine.math.matrix.ZRotationMatrix;
 
 public class Mesh3D {
+	// Mesh position offset
+	protected final Vec3F position;
+	
+	// Mesh rotation
 	protected final Vec3F rotation;
 	
+	// Mesh scale
+	protected final Vec3F scale;
+	
+	// Real triangle coordinates
 	protected final ArrayList<Triangle3D> triangles;
+	protected final ArrayList<Triangle3D> trianglesToProject;
 	
 	/**
 	 * @param triangles
@@ -22,39 +34,28 @@ public class Mesh3D {
 	 * - Mesh's {@code rotation}
 	 */
 	public Mesh3D(final Triangle3D[] triangles, final Vec3F rotation) {
-		if(triangles.length == 0)
-			throw new IllegalArgumentException("A Mesh must have at least 1 triangle!");
-			
 		this.triangles = new ArrayList<Triangle3D> ();
+		this.trianglesToProject = new ArrayList<Triangle3D> ();
 		
-		// Add all the triangles
-		for(final Triangle3D tri : triangles)
-			this.triangles.add(tri);
+		if(triangles != null) {
+			// Illegal length
+			if(triangles.length == 0)
+				throw new IllegalArgumentException("A Mesh must have at least 1 triangle!");
+			
+			// Add all the triangles
+			for(final Triangle3D tri : triangles)
+				this.triangles.add(tri);
+		}
 		
 		this.rotation = rotation;
+		
+		// Default position offset
+		this.position = new Vec3F(0.0F, 0.0F, 0.0F);
+		
+		// Default scale
+		this.scale = new Vec3F(1.0F, 1.0F, 1.0F);
 	}
 	
-	// TODO: Optimize this code
-	public void transformToScreen() {
-		final ProjectionMatrix projectionMatrix = new ProjectionMatrix(Camera.FOV);
-		
-		for(final Triangle3D triangle : triangles) {
-			// Transform to screen space
-			final Triangle3D triangleToProject = new Triangle3D(
-						Mathf.multiplyVecToMat(triangle.pointA, projectionMatrix),
-						Mathf.multiplyVecToMat(triangle.pointB, projectionMatrix),
-						Mathf.multiplyVecToMat(triangle.pointC, projectionMatrix)
-					);
-			
-			// Scale triangle to aspect view
-			final Vec3F scale = new Vec3F(1.0F, 1.0F, 0.0F);
-			triangleToProject.add(scale);
-			
-			// Scale triangle to screen view
-			final Vec3F offset = new Vec3F((float)(JavaEngine.get().getWidth() << 1), (float)(JavaEngine.get().getHeight() << 1), 0.0F);
-			triangleToProject.multiply(offset);
-		}
-	}
 	
 	/**
 	 * @param triangles
@@ -66,6 +67,70 @@ public class Mesh3D {
 		this(triangles, new Vec3F(0.0F, 0.0F, 0.0F));
 	}
 	
+	// TODO: Optimize this code
+	public void toScreenCoordinates() {
+		// Matrix initialization
+		final ProjectionMatrix projectionMatrix = new ProjectionMatrix(Camera.FOV);
+		final XRotationMatrix rotationMatixX = new XRotationMatrix(rotation.getX());
+		final YRotationMatrix rotationMatixY = new YRotationMatrix(rotation.getY());
+		final ZRotationMatrix rotationMatixZ = new ZRotationMatrix(rotation.getZ());
+		
+		for(final Triangle3D triangle : triangles) {
+			// Rotate
+			final Triangle3D triangleRotateZ = new Triangle3D(
+						Mathf.multiplyVecToMat(triangle.pointA, rotationMatixZ),
+						Mathf.multiplyVecToMat(triangle.pointB, rotationMatixZ),
+						Mathf.multiplyVecToMat(triangle.pointC, rotationMatixZ)
+					);
+			
+			final Triangle3D triangleRotateY = new Triangle3D(
+					Mathf.multiplyVecToMat(triangleRotateZ.pointA, rotationMatixY),
+					Mathf.multiplyVecToMat(triangleRotateZ.pointB, rotationMatixY),
+					Mathf.multiplyVecToMat(triangleRotateZ.pointC, rotationMatixY)
+				);
+			
+			final Triangle3D triangleRotateX = new Triangle3D(
+					Mathf.multiplyVecToMat(triangleRotateY.pointA, rotationMatixX),
+					Mathf.multiplyVecToMat(triangleRotateY.pointB, rotationMatixX),
+					Mathf.multiplyVecToMat(triangleRotateY.pointC, rotationMatixX)
+				);
+			
+			// Translate
+			final Triangle3D translatedTriangle = triangleRotateX.clone();
+			translatedTriangle.pointA.set( triangleRotateX.pointA.add(position) );
+			translatedTriangle.pointB.set( triangleRotateX.pointB.add(position) );
+			translatedTriangle.pointC.set( triangleRotateX.pointC.add(position) );
+			
+			// Transform to screen space
+			final Triangle3D triangleToProject = new Triangle3D(
+						Mathf.multiplyVecToMat(translatedTriangle.pointA, projectionMatrix),
+						Mathf.multiplyVecToMat(translatedTriangle.pointB, projectionMatrix),
+						Mathf.multiplyVecToMat(translatedTriangle.pointC, projectionMatrix)
+					);
+			
+			// Scale triangle to aspect view
+			triangleToProject.add(scale);
+			
+			// Scale triangle to screen view
+			final Vec3F offset = new Vec3F((float)(JavaEngine.get().getWidth() >> 1), (float)(JavaEngine.get().getHeight() >> 1), 0.0F);
+			triangleToProject.multiply(offset);
+			
+//			// Reset component
+//			triangle.pointA.set( triangle.pointA.subtract(position) );
+//			triangle.pointB.set( triangle.pointB.subtract(position) );
+//			triangle.pointC.set( triangle.pointC.subtract(position) );
+			
+			// Set all the changes
+			trianglesToProject.add(triangleToProject);
+		}
+	}
+	
+	// TODO: doc
+	public void clean() {
+		// Clear all the elements
+		trianglesToProject.clear();
+	}
+	
 	/**
 	 * Draws an outline of all the {@code triangles}
 	 * 
@@ -73,7 +138,7 @@ public class Mesh3D {
 	 * - {@code Graphics2D} to draw
 	 */
 	public void draw(final Graphics2D g) {
-		triangles.forEach(tri -> tri.drawLine(g));
+		trianglesToProject.forEach(tri -> tri.drawLine(g));
 	}
 	
 	/**
@@ -83,7 +148,7 @@ public class Mesh3D {
 	 * - {@code Graphics2D} to draw
 	 */
 	public void fill(final Graphics2D g) {
-		triangles.forEach(tri -> tri.fill(g));
+		trianglesToProject.forEach(tri -> tri.fill(g));
 	}
 	
 	/**
@@ -119,5 +184,31 @@ public class Mesh3D {
 		}
 		
 		return array;
+	}
+	
+	// TODO: Document all of this
+	
+	/**
+	 * @return
+	 * Position offset of this {@code Mesh 3D}
+	 */
+	public Vec3F getPosition() {
+		return position;
+	}
+	
+	/**
+	 * @return
+	 * Rotation of this {@code Mesh 3D}
+	 */
+	public Vec3F getRotation() {
+		return rotation;
+	}
+
+	/**
+	 * @return
+	 * Scale of this {@code Mesh 3D}
+	 */
+	public Vec3F getScale() {
+		return scale;
 	}
 }

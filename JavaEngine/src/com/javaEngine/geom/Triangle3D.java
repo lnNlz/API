@@ -6,6 +6,7 @@ import java.awt.Polygon;
 import com.javaEngine.math.Vec3F;
 
 public class Triangle3D {
+	// Vertices
 	public final Vec3F pointA;
 	public final Vec3F pointB;
 	public final Vec3F pointC;
@@ -55,6 +56,18 @@ public class Triangle3D {
 					new int[] { (int)pointA.getY(), (int)pointB.getY(), (int)pointC.getY() },
 					3
 				));
+	}
+	
+	/**
+	 * TODO: Doc this
+	 * @param pointA
+	 * @param pointB
+	 * @param pointC
+	 */
+	public void set(final Vec3F pointA, final Vec3F pointB, final Vec3F pointC) {
+		this.pointA.set(pointA);
+		this.pointB.set(pointB);
+		this.pointC.set(pointC);
 	}
 	
 	/**
