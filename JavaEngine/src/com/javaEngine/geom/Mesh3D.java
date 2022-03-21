@@ -1,5 +1,6 @@
 package com.javaEngine.geom;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
@@ -25,6 +26,13 @@ public class Mesh3D {
 	// Real triangle coordinates
 	protected final ArrayList<Triangle3D> triangles;
 	protected final ArrayList<Triangle3D> trianglesToProject;
+	
+	// Settings
+	protected boolean applyLighting = true;
+	
+	// Lighting
+	protected Color color;
+	protected float brightness;
 	
 	/**
 	 * @param triangles
@@ -54,6 +62,9 @@ public class Mesh3D {
 		
 		// Default scale
 		this.scale = new Vec3F(1.0F, 1.0F, 1.0F);
+		
+		// Default color
+		this.color = Color.WHITE;
 	}
 	
 	
@@ -101,12 +112,48 @@ public class Mesh3D {
 			translatedTriangle.pointB.set( triangleRotateX.pointB.add(position) );
 			translatedTriangle.pointC.set( triangleRotateX.pointC.add(position) );
 			
+			// Getting the surface's normal
+			final Vec3F delta1 = new Vec3F(
+						translatedTriangle.pointB.getX() - translatedTriangle.pointA.getX(),
+						translatedTriangle.pointB.getY() - translatedTriangle.pointA.getY(),
+						translatedTriangle.pointB.getZ() - translatedTriangle.pointA.getZ()
+					);
+			
+			final Vec3F delta2 = new Vec3F(
+					translatedTriangle.pointC.getX() - translatedTriangle.pointA.getX(),
+					translatedTriangle.pointC.getY() - translatedTriangle.pointA.getY(),
+					translatedTriangle.pointC.getZ() - translatedTriangle.pointA.getZ()
+				);
+			
+			// Normalize
+			final Vec3F normalVector = new Vec3F( delta1.crossProduct(delta2) );
+			normalVector.set( normalVector.normalize() );
+				
+			// Checks if triangle is visible
+			if(normalVector.getX() * (translatedTriangle.pointA.getX() - Camera.get().position.getX()) +
+			   normalVector.getY() * (translatedTriangle.pointA.getY() - Camera.get().position.getY()) +
+			   normalVector.getZ() * (translatedTriangle.pointA.getZ() - Camera.get().position.getZ()) > 0.0F) continue;
+			
 			// Transform to screen space
 			final Triangle3D triangleToProject = new Triangle3D(
 						Mathf.multiplyVecToMat(translatedTriangle.pointA, projectionMatrix),
 						Mathf.multiplyVecToMat(translatedTriangle.pointB, projectionMatrix),
 						Mathf.multiplyVecToMat(translatedTriangle.pointC, projectionMatrix)
 					);
+			
+			// Handle lighting
+			if(applyLighting) {
+				final Vec3F normalizedLight = Camera.get().direction.normalize();
+				brightness = normalVector.dotProduct(normalizedLight);
+				
+				// TODO: Add custom color support
+				triangleToProject.color = new Color(
+						brightness,
+						brightness,
+						brightness
+				);
+				
+			}
 			
 			// Scale triangle to aspect view
 			triangleToProject.add(scale);
@@ -115,17 +162,14 @@ public class Mesh3D {
 			final Vec3F offset = new Vec3F((float)(JavaEngine.get().getWidth() >> 1), (float)(JavaEngine.get().getHeight() >> 1), 0.0F);
 			triangleToProject.multiply(offset);
 			
-//			// Reset component
-//			triangle.pointA.set( triangle.pointA.subtract(position) );
-//			triangle.pointB.set( triangle.pointB.subtract(position) );
-//			triangle.pointC.set( triangle.pointC.subtract(position) );
-			
 			// Set all the changes
 			trianglesToProject.add(triangleToProject);
 		}
 	}
 	
-	// TODO: doc
+	/**
+	 * Clears all the {@code triangles} from the list to project
+	 */
 	public void clean() {
 		// Clear all the elements
 		trianglesToProject.clear();
@@ -149,6 +193,16 @@ public class Mesh3D {
 	 */
 	public void fill(final Graphics2D g) {
 		trianglesToProject.forEach(tri -> tri.fill(g));
+	}
+	
+	/**
+	 * Applies {@code lighting} to this mesh
+	 * 
+	 * @param bool
+	 * {@code true} whether lighting should be applied; {@code false} otherwise
+	 */
+	public void applyLigting(final boolean bool) {
+		applyLighting = bool;
 	}
 	
 	/**
@@ -210,5 +264,23 @@ public class Mesh3D {
 	 */
 	public Vec3F getScale() {
 		return scale;
+	}
+	
+	/**
+	 * @return
+	 * {@code Color} of this mesh
+	 */
+	public Color getColor() {
+		return color;
+	}
+	
+	/**
+	 * Sets {@code new color} to this mesh
+	 * 
+	 * @param newColor
+	 * - {@code new} color
+	 */
+	public void setColor(final Color newColor) {
+		color = newColor;
 	}
 }

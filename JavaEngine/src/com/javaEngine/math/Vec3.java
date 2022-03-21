@@ -45,6 +45,18 @@ public class Vec3 {
 	}
 	
 	/**
+	 * Sets {@code all the value} of this vector to {@code all the value} of the given vector
+	 * 
+	 * @param vector
+	 * - {@code Vector} values
+	 */
+	public Vec3(final Vec3 vector) {
+		x = vector.x;
+		y = vector.y;
+		z = vector.z;
+	}
+	
+	/**
 	 * @return
 	 * the {@code length} or {@code magnitude} of this 3D vector,
 	 * this is achieved through Pythagoras theorem
@@ -75,6 +87,123 @@ public class Vec3 {
 		newVec3.z = z / length;
 		
 		return newVec3;
+	}
+	
+	/**
+	 * Performs {@code cross product} multiplication between this vector
+	 * and {@code another vector specified}
+	 * 
+	 * @param anotherVec3
+	 * - {@code Another vector} to multiply
+	 * 
+	 * @return
+	 * {@code result or output} of the operation
+	 */
+	public Vec3 crossProduct(final Vec3 anotherVec3) {
+		// Vector to return
+		final Vec3 outputVector = new Vec3();
+		
+		// Perform cross product multiplication
+		outputVector.x = y * anotherVec3.z - z * anotherVec3.y;
+		outputVector.y = z * anotherVec3.x - x * anotherVec3.z;
+		outputVector.z = x * anotherVec3.y - y * anotherVec3.x;
+		
+		return outputVector;
+	}
+	
+	/**
+	 * Perform {@code dot product} multiplication between this vector
+	 * and {@code another vector specified}
+	 * 
+	 * @param anotherVec3
+	 * - {@code Another vector} to multiply
+	 * 
+	 * @return
+	 * {@code result of output} of the operation
+	 */
+	public int dotProduct(final Vec3 anotherVec3) {
+		// Value to return
+		int outputValue = 0;
+		
+		// Perform dot product multiplication
+		outputValue = x * anotherVec3.x;
+		outputValue += y * anotherVec3.y;
+		outputValue += z * anotherVec3.z;
+		
+		return outputValue;
+	}
+	
+	/**
+	 * Adds {@code every value} of this vector to all the value of the {@code given vector}
+	 *  
+	 * @param anotherVec3
+	 * - {@code vector} to add 
+	 * 
+	 * @return
+	 * {@code Added} Vec3
+	 * 
+	 * @see #add(int)
+	 */
+	public Vec3 add(final Vec3 anotherVec3) {
+		return new Vec3(anotherVec3.x + x, anotherVec3.y + y, anotherVec3.z + z);
+	}
+	
+	/**
+	 * Adds {@code every value} of this vector to the value given
+	 *  
+	 * @param value
+	 * - {@code value} to add
+	 * 
+	 * @return
+	 * {@code Added} value
+	 * 
+	 * @see #add(Vec3)
+	 */
+	public Vec3 add(final int value) {
+		return add(new Vec3(value));
+	}
+	
+	/**
+	 * Subtracts {@code every value} of this vector to all the value of the {@code given vector}
+	 *  
+	 * @param anotherVec3
+	 * - {@code vector} to subtract 
+	 * 
+	 * @return
+	 * {@code Subtracted} Vec3
+	 */
+	public Vec3 subtract(final Vec3 anotherVec3) {
+		return new Vec3(x - anotherVec3.x, y - anotherVec3.y, z - anotherVec3.z);
+	}
+	
+	/**
+	 * Multiplies {@code every value} of this vector to the scalar given
+	 * 
+	 * @param scalar
+	 * - {@code Scalar} value to multiply
+	 * 
+	 * @return
+	 * {@code Multiplied} Vector3
+	 * 
+	 * @see #multiply(Vec3)
+	 */
+	public Vec3 multiply(final int scalar) {
+		return new Vec3(x * scalar, y * scalar, z * scalar);
+	}
+	
+	/**
+	 * Multiplies {@code every value} of this vector to every value of the {@code vector} given
+	 * 
+	 * @param anotherVec3
+	 * - {@code Vector3} value to multiply
+	 * 
+	 * @return
+	 * {@code Multiplied} Vector3
+	 * 
+	 * @see #multiply(int)
+	 */
+	public Vec3 multiply(final Vec3 anotherVec3) {
+		return new Vec3(x * anotherVec3.x, y * anotherVec3.y, z * anotherVec3.z);
 	}
 	
 	/**

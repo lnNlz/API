@@ -1,5 +1,6 @@
 package com.javaEngine.geom;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 
@@ -10,6 +11,9 @@ public class Triangle3D {
 	public final Vec3F pointA;
 	public final Vec3F pointB;
 	public final Vec3F pointC;
+	
+	// Color of this rectangle
+	public Color color;
 	
 	/**
 	 * @param pointA
@@ -25,6 +29,9 @@ public class Triangle3D {
 		this.pointA = pointA;
 		this.pointB = pointB;
 		this.pointC = pointC;
+		
+		// Default Color
+		color = Color.WHITE;
 	}
 	
 	/**
@@ -34,6 +41,8 @@ public class Triangle3D {
 	 * - {@code Graphics2D} to draw
 	 */
 	public void drawLine(final Graphics2D g) {
+		g.setColor(color);
+		
 		g.drawLine((int)pointA.getX(), (int)pointA.getY(), 
 				   (int)pointB.getX(), (int)pointB.getY());
 		
@@ -51,23 +60,13 @@ public class Triangle3D {
 	 * - {@code Graphics2D} to draw
 	 */
 	public void fill(final Graphics2D g) {
+		g.setColor(color);
+		
 		g.fill(new Polygon(
 					new int[] { (int)pointA.getX(), (int)pointB.getX(), (int)pointC.getX() },
 					new int[] { (int)pointA.getY(), (int)pointB.getY(), (int)pointC.getY() },
 					3
 				));
-	}
-	
-	/**
-	 * TODO: Doc this
-	 * @param pointA
-	 * @param pointB
-	 * @param pointC
-	 */
-	public void set(final Vec3F pointA, final Vec3F pointB, final Vec3F pointC) {
-		this.pointA.set(pointA);
-		this.pointB.set(pointB);
-		this.pointC.set(pointC);
 	}
 	
 	/**

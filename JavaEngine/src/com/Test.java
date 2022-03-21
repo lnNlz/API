@@ -31,26 +31,16 @@ public final class Test {
 class Testing implements Obj {
 	// Create the cube
 	private final Cube cube = new Cube(1.0F);
-	private final Cube cube2 = new Cube(1.0F);
-	private final Cube cube3 = new Cube(0.5F);
 	
 	public Testing() {
 		// Offset the cube
 		cube.getPosition().setZ(3.0F);
-		
-		cube2.getPosition().setX(-10.0F);
-		cube2.getPosition().setZ(10.0F);
-		
-		cube3.getPosition().setX(0.0F);
-		cube3.getPosition().setZ(10.0F);
 	}
 	
 	private float theta = 0.0F;
 	@Override
 	public void onUpdate(long elapsedTime) {
 		cube.clean();
-		cube2.clean();
-		cube3.clean();
 		
 		// Rotate the cube on x axis
 		theta += 0.05F;
@@ -59,31 +49,14 @@ class Testing implements Obj {
 		cube.getRotation().setY(theta * 0.5F);
 		cube.getRotation().setZ(theta * 0.1F);
 		
-		cube2.getRotation().setX(theta);
-		cube2.getRotation().setY(theta * 0.5F);
-		cube2.getRotation().setZ(theta * 0.1F);
-		
-		cube3.getRotation().setX(theta);
-		cube3.getRotation().setY(theta * 0.5F);
-		cube3.getRotation().setZ(theta * 0.1F);
-		
 		// Do some magic
 		cube.toScreenCoordinates();
-		cube2.toScreenCoordinates();
-		cube3.toScreenCoordinates();
 	}
 	
 	@Override
 	public void onRender(final Graphics2D g) {
 		// Render the cube
-		g.setColor(Color.RED);
 		cube.fill(g);
-		
-		g.setColor(Color.BLUE);
-		cube2.fill(g);
-		
-		g.setColor(Color.GREEN);
-		cube3.fill(g);
 	}
 }
 

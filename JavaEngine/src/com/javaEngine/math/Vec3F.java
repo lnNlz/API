@@ -45,6 +45,18 @@ public class Vec3F {
 	}
 	
 	/**
+	 * Sets {@code all the value} of this vector to {@code all the value} of the given vector
+	 * 
+	 * @param vector
+	 * - {@code Vector} values
+	 */
+	public Vec3F(final Vec3F vector) {
+		x = vector.x;
+		y = vector.y;
+		z = vector.z;
+	}
+	
+	/**
 	 * @return
 	 * the {@code length} or {@code magnitude} of this 3D vector,
 	 * this is achieved through Pythagoras theorem
@@ -75,6 +87,50 @@ public class Vec3F {
 		newVec3F.z = z / length;
 		
 		return newVec3F;
+	}
+	
+	/**
+	 * Performs {@code cross product} multiplication between this vector
+	 * and {@code another vector specified}
+	 * 
+	 * @param anotherVec3F
+	 * - {@code Another vector} to multiply
+	 * 
+	 * @return
+	 * {@code result or output} of the operation
+	 */
+	public Vec3F crossProduct(final Vec3F anotherVec3F) {
+		// Vector to return
+		final Vec3F outputVector = new Vec3F();
+		
+		// Perform cross product multiplication
+		outputVector.x = y * anotherVec3F.z - z * anotherVec3F.y;
+		outputVector.y = z * anotherVec3F.x - x * anotherVec3F.z;
+		outputVector.z = x * anotherVec3F.y - y * anotherVec3F.x;
+		
+		return outputVector;
+	}
+	
+	/**
+	 * Perform {@code dot product} multiplication between this vector
+	 * and {@code another vector specified}
+	 * 
+	 * @param anotherVec3F
+	 * - {@code Another vector} to multiply
+	 * 
+	 * @return
+	 * {@code result of output} of the operation
+	 */
+	public float dotProduct(final Vec3F anotherVec3F) {
+		// Value to return
+		float outputValue = 0.0F;
+		
+		// Perform dot product multiplication
+		outputValue = x * anotherVec3F.x;
+		outputValue += y * anotherVec3F.y;
+		outputValue += z * anotherVec3F.z;
+		
+		return outputValue;
 	}
 	
 	/**
