@@ -26,7 +26,7 @@ public interface Obj {
 	 * @param elapsedTime
 	 * - Elapsed time : {@code seconds}
 	 */
-	public void onUpdate(final long elapsedTime);
+	public void onUpdate(final double deltaTime);
 	
 	/**
 	 * Called after {@code onUpdate()} method, rendering stuffs will be handled in this method

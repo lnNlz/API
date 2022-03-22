@@ -116,7 +116,6 @@ public final class JavaEngine extends Canvas implements Runnable {
 		long last_engineTime = System.nanoTime();
 		double engine_deltaTime = 0.0;
 		long engineTimer = System.currentTimeMillis();
-		long elapsedTime = 0;
 		while(isRunning()) {
 			final double nano = 1E+9 / TPS;
 			final long current_engineTime = System.nanoTime();
@@ -128,7 +127,7 @@ public final class JavaEngine extends Canvas implements Runnable {
 			// Update
 			while(engine_deltaTime >= 0) {
 				// Update objects
-				for(final Obj obj : objects) obj.onUpdate(elapsedTime);
+				for(final Obj obj : objects) obj.onUpdate(engine_deltaTime);
 				
 				TICKS++; // increment
 				engine_deltaTime--; // decrement
@@ -163,9 +162,6 @@ public final class JavaEngine extends Canvas implements Runnable {
 			if(System.currentTimeMillis() - engineTimer > 1_000)  {
 				// Reset timer
 				engineTimer += 1_000;
-				
-				// Increment elapsed time
-				elapsedTime++;
 				
 				// Print if enabled
 				if(printFPSandTPS)

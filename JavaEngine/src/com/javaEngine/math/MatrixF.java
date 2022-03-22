@@ -171,4 +171,21 @@ public class MatrixF {
 		
 		return outputMatrix;
 	}
+	
+	// TODO: Remove this
+	protected static final MatrixF inverse(final MatrixF matrix) {
+		// Matrix to return
+		final MatrixF outputMatrix = new MatrixF(matrix.size());
+		
+		outputMatrix.values[0][0] = matrix.values[0][0]; outputMatrix.values[0][1] = matrix.values[1][0]; outputMatrix.values[0][2] = matrix.values[2][0]; outputMatrix.values[0][3] = 0.0F;
+		outputMatrix.values[1][0] = matrix.values[0][1]; outputMatrix.values[1][1] = matrix.values[1][1]; outputMatrix.values[1][2] = matrix.values[2][1]; outputMatrix.values[1][3] = 0.0F;
+		outputMatrix.values[2][0] = matrix.values[0][2]; outputMatrix.values[2][1] = matrix.values[1][2]; outputMatrix.values[2][2] = matrix.values[2][2]; outputMatrix.values[2][3] = 0.0F;
+	
+		outputMatrix.values[3][0] = -(matrix.values[3][0] * outputMatrix.values[0][0] + matrix.values[3][1] * outputMatrix.values[1][0] + matrix.values[3][2] * outputMatrix.values[2][0]);
+		outputMatrix.values[3][1] = -(matrix.values[3][0] * outputMatrix.values[0][1] + matrix.values[3][1] * outputMatrix.values[1][1] + matrix.values[3][2] * outputMatrix.values[2][1]);
+		outputMatrix.values[3][2] = -(matrix.values[3][0] * outputMatrix.values[0][2] + matrix.values[3][1] * outputMatrix.values[1][2] + matrix.values[3][2] * outputMatrix.values[2][2]);
+		outputMatrix.values[3][3] = 0.0F;
+		
+		return outputMatrix;
+	}
 }

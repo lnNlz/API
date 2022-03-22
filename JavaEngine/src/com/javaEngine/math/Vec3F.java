@@ -8,6 +8,9 @@ public class Vec3F {
 	protected float y;
 	protected float z;
 	
+	// TODO: Remove this w component
+	public float w = 1.0F;
+	
 	/**
 	 * @param x
 	 * - {@code X} value
@@ -204,6 +207,44 @@ public class Vec3F {
 	 */
 	public Vec3F multiply(final Vec3F anotherVec3) {
 		return new Vec3F(x * anotherVec3.x, y * anotherVec3.y, z * anotherVec3.z);
+	}
+	
+	/**
+	 * Divides {@code every value} of this vector to every value of the {@code vector} given
+	 * 
+	 * @param anotherVec3F
+	 * - Another {@code vector} to divide
+	 * 
+	 * @return
+	 * {@code Output} vector
+	 * 
+	 * @see #divide(float)
+	 */
+	public Vec3F divide(final Vec3F anotherVec3F) {
+		return new Vec3F(x / anotherVec3F.x,
+						 y / anotherVec3F.y,
+						 z / anotherVec3F.z);
+	}
+	
+	/**
+	 * Divides {@code every value} of this vector to the {@code value} given
+	 * 
+	 * @param value
+	 * - {@code value} to divide
+	 * 
+	 * @return
+	 * {@code Output} vector
+	 */
+	public Vec3F divide(final float value) {
+		return divide(new Vec3F(value));
+	}
+	
+	/**
+	 * @return
+	 * {@code Half} of every value of this {@code vector}
+	 */
+	public Vec3F half() {
+		return new Vec3F( (int)x >> 1, (int)y >> 1, (int)z >> 1 );
 	}
 	
 	/**

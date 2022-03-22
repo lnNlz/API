@@ -6,13 +6,25 @@ import java.util.ArrayList;
 
 import com.javaEngine.Camera;
 import com.javaEngine.JavaEngine;
-import com.javaEngine.math.Mathf;
+import com.javaEngine.math.MatrixF;
 import com.javaEngine.math.Vec3F;
+import com.javaEngine.math.matrix.PointAtMatrix3D;
 import com.javaEngine.math.matrix.ProjectionMatrix;
 import com.javaEngine.math.matrix.XRotationMatrix;
 import com.javaEngine.math.matrix.YRotationMatrix;
 import com.javaEngine.math.matrix.ZRotationMatrix;
 
+/**
+ * A 3D Polygon that stores {@code multiple triangles} and handles them,
+ * each Triangle contains 3 {@code Vector 3 Float} for points
+ * 
+ * @since 1.0
+ * @version 1.0
+ * 
+ * @see Triangle3D
+ * @see Cube
+ * @see Rectangle3D
+ */
 public class Mesh3D {
 	// Mesh position offset
 	protected final Vec3F position;
@@ -62,6 +74,7 @@ public class Mesh3D {
 		
 		// Default scale
 		this.scale = new Vec3F(1.0F, 1.0F, 1.0F);
+		assert(scale.length() > 0.0F) : "Invalid scale!";
 		
 		// Default color
 		this.color = Color.WHITE;
@@ -82,28 +95,39 @@ public class Mesh3D {
 	public void toScreenCoordinates() {
 		// Matrix initialization
 		final ProjectionMatrix projectionMatrix = new ProjectionMatrix(Camera.FOV);
-		final XRotationMatrix rotationMatixX = new XRotationMatrix(rotation.getX());
-		final YRotationMatrix rotationMatixY = new YRotationMatrix(rotation.getY());
-		final ZRotationMatrix rotationMatixZ = new ZRotationMatrix(rotation.getZ());
+		final XRotationMatrix rotationMatrixX = new XRotationMatrix(Camera.get().rotation.getX());
+		final YRotationMatrix rotationMatrixY = new YRotationMatrix(Camera.get().rotation.getY());
+		final ZRotationMatrix rotationMatrixZ = new ZRotationMatrix(Camera.get().rotation.getZ());
+		
+//		final XRotationMatrix rotationMatrixX = new XRotationMatrix(rotation.getX());
+//		final YRotationMatrix rotationMatrixY = new YRotationMatrix(rotation.getY());
+//		final ZRotationMatrix rotationMatrixZ = new ZRotationMatrix(rotation.getZ());
+		
+		// Camera handling
+		final Vec3F lookingDirection = multiplyVecToMatRaw(Camera.get().view, rotationMatrixY);
+		final Vec3F targetView = Camera.get().position.add(lookingDirection);
+		
+		// View matrix
+		final MatrixF viewMatrix = new PointAtMatrix3D(Camera.get().position, targetView, Camera.get().up).inverse();
 		
 		for(final Triangle3D triangle : triangles) {
 			// Rotate
 			final Triangle3D triangleRotateZ = new Triangle3D(
-						Mathf.multiplyVecToMat(triangle.pointA, rotationMatixZ),
-						Mathf.multiplyVecToMat(triangle.pointB, rotationMatixZ),
-						Mathf.multiplyVecToMat(triangle.pointC, rotationMatixZ)
+						multiplyVecToMatRaw(triangle.pointA, rotationMatrixZ),
+						multiplyVecToMatRaw(triangle.pointB, rotationMatrixZ),
+						multiplyVecToMatRaw(triangle.pointC, rotationMatrixZ)
 					);
 			
 			final Triangle3D triangleRotateY = new Triangle3D(
-					Mathf.multiplyVecToMat(triangleRotateZ.pointA, rotationMatixY),
-					Mathf.multiplyVecToMat(triangleRotateZ.pointB, rotationMatixY),
-					Mathf.multiplyVecToMat(triangleRotateZ.pointC, rotationMatixY)
+					multiplyVecToMatRaw(triangleRotateZ.pointA, rotationMatrixY),
+					multiplyVecToMatRaw(triangleRotateZ.pointB, rotationMatrixY),
+					multiplyVecToMatRaw(triangleRotateZ.pointC, rotationMatrixY)
 				);
 			
 			final Triangle3D triangleRotateX = new Triangle3D(
-					Mathf.multiplyVecToMat(triangleRotateY.pointA, rotationMatixX),
-					Mathf.multiplyVecToMat(triangleRotateY.pointB, rotationMatixX),
-					Mathf.multiplyVecToMat(triangleRotateY.pointC, rotationMatixX)
+					multiplyVecToMatRaw(triangleRotateY.pointA, rotationMatrixX),
+					multiplyVecToMatRaw(triangleRotateY.pointB, rotationMatrixX),
+					multiplyVecToMatRaw(triangleRotateY.pointC, rotationMatrixX)
 				);
 			
 			// Translate
@@ -130,21 +154,27 @@ public class Mesh3D {
 			normalVector.set( normalVector.normalize() );
 				
 			// Checks if triangle is visible
-			if(normalVector.getX() * (translatedTriangle.pointA.getX() - Camera.get().position.getX()) +
-			   normalVector.getY() * (translatedTriangle.pointA.getY() - Camera.get().position.getY()) +
-			   normalVector.getZ() * (translatedTriangle.pointA.getZ() - Camera.get().position.getZ()) > 0.0F) continue;
+			if(normalVector.dotProduct(new Vec3F(translatedTriangle.pointA.subtract(Camera.get().position))) > 0.0F) continue;
+			
+			// Triangle to view
+			final Triangle3D viewTriangle = new Triangle3D(
+					multiplyVecToMatRaw(translatedTriangle.pointA, viewMatrix),
+					multiplyVecToMatRaw(translatedTriangle.pointB, viewMatrix),
+					multiplyVecToMatRaw(translatedTriangle.pointC, viewMatrix)
+				);
 			
 			// Transform to screen space
 			final Triangle3D triangleToProject = new Triangle3D(
-						Mathf.multiplyVecToMat(translatedTriangle.pointA, projectionMatrix),
-						Mathf.multiplyVecToMat(translatedTriangle.pointB, projectionMatrix),
-						Mathf.multiplyVecToMat(translatedTriangle.pointC, projectionMatrix)
+						multiplyVecToMat(viewTriangle.pointA, projectionMatrix),
+						multiplyVecToMat(viewTriangle.pointB, projectionMatrix),
+						multiplyVecToMat(viewTriangle.pointC, projectionMatrix)
 					);
 			
 			// Handle lighting
 			if(applyLighting) {
 				final Vec3F normalizedLight = Camera.get().direction.normalize();
 				brightness = normalVector.dotProduct(normalizedLight);
+				brightness = brightness < 0 ? 0 : brightness > 255 ? 255 : brightness;
 				
 				// TODO: Add custom color support
 				triangleToProject.color = new Color(
@@ -168,6 +198,112 @@ public class Mesh3D {
 	}
 	
 	/**
+	 * Multiplies {@code Vector 3D float} to {@code Matrix 4x4 Float}
+	 * 
+	 * @param input
+	 * - {@code Vector 3D float} to multiply
+	 * 
+	 * @param matrix
+	 * - {@code Matrix 4x4 Float} to multiply
+	 * 
+	 * @return
+	 * - {@code output vector} if operation is successful; {@code null} otherwise
+	 */
+	protected final Vec3F multiplyVecToMat(final Vec3F input, final MatrixF matrix) {
+		// Invalid size
+		if(matrix.size() != 4) return null;
+		
+		// Vector 3D float to return
+		final Vec3F output = new Vec3F();
+		
+		// First element
+		output.setX(
+					input.getX() * matrix.get(0, 0) +
+					input.getY() * matrix.get(1, 0) +
+					input.getZ() * matrix.get(2, 0) +
+					matrix.get(3, 0)
+				);
+		
+		// Second element
+		output.setY(
+				input.getX() * matrix.get(0, 1) +
+				input.getY() * matrix.get(1, 1) +
+				input.getZ() * matrix.get(2, 1) +
+				matrix.get(3, 1)
+				);
+		
+		// Third element
+		output.setZ(
+				input.getX() * matrix.get(0, 2) +
+				input.getY() * matrix.get(1, 2) +
+				input.getZ() * matrix.get(2, 2) +
+				matrix.get(3, 2)
+				);
+		
+		// Fourth element
+		final float w = 
+				input.getX() * matrix.get(0, 3) +
+				input.getY() * matrix.get(1, 3) +
+				input.getZ() * matrix.get(2, 3) +
+				matrix.get(3, 3);
+		
+		// Transform 4D back to 3D
+		if(w != 0.0F) {
+			output.setX(output.getX() / w);
+			output.setY(output.getY() / w);
+			output.setZ(output.getZ() / w);
+		}
+		
+		return output;
+	}
+	
+	/**
+	 * Multiplies {@code Vector 3D float} to {@code Matrix 4x4 Float} without normalizing it
+	 * 
+	 * @param input
+	 * - {@code Vector 3D float} to multiply
+	 * 
+	 * @param matrix
+	 * - {@code Matrix 4x4 Float} to multiply
+	 * 
+	 * @return
+	 * - {@code output vector} if operation is successful; {@code null} otherwise
+	 */
+	private final Vec3F multiplyVecToMatRaw(final Vec3F input, final MatrixF matrix) {
+		// Invalid size
+		if(matrix.size() != 4) return null;
+		
+		// Vector 3D float to return
+		final Vec3F output = new Vec3F();
+		
+		// First element
+		output.setX(
+					input.getX() * matrix.get(0, 0) +
+					input.getY() * matrix.get(1, 0) +
+					input.getZ() * matrix.get(2, 0) +
+					input.w      * matrix.get(3, 0)
+				);
+		
+		// Second element
+		output.setY(
+				input.getX() * matrix.get(0, 1) +
+				input.getY() * matrix.get(1, 1) +
+				input.getZ() * matrix.get(2, 1) +
+				input.w      * matrix.get(3, 1)
+				);
+		
+		// Third element
+		output.setZ(
+				input.getX() * matrix.get(0, 2) +
+				input.getY() * matrix.get(1, 2) +
+				input.getZ() * matrix.get(2, 2) +
+				input.w      * matrix.get(3, 2)
+				);
+		
+		return output;
+	}
+	
+ 	/**
 	 * Clears all the {@code triangles} from the list to project
 	 */
 	public void clean() {

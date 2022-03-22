@@ -2,10 +2,15 @@ package com;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 
+import com.javaEngine.Camera;
 import com.javaEngine.JavaEngine;
+import com.javaEngine.Key;
 import com.javaEngine.Obj;
 import com.javaEngine.geom.Cube;
+import com.javaEngine.geom.Rectangle3D;
+import com.javaEngine.math.Vec3F;
 
 public final class Test {
 	public static void main(String[] args) {
@@ -30,33 +35,65 @@ public final class Test {
 
 class Testing implements Obj {
 	// Create the cube
-	private final Cube cube = new Cube(1.0F);
+	private final Rectangle3D cube = new Rectangle3D(new Vec3F(2.0F, 2.0F, 1.0F));
+	private final Cube box = new Cube(2.0F);
 	
 	public Testing() {
 		// Offset the cube
-		cube.getPosition().setZ(3.0F);
+		cube.getPosition().setZ(5.0F);
+		
+		box.getPosition().setX(-5.0F);
+		box.getPosition().setZ(0.0F);
 	}
 	
 	private float theta = 0.0F;
+	
 	@Override
-	public void onUpdate(long elapsedTime) {
+	public void onUpdate(double deltaTime) {
 		cube.clean();
+		box.clean();
+		// TODO: Allow independent rotation
+		final float speed = 1.0F * (float)deltaTime;
+		final Camera camera = Camera.get();
 		
-		// Rotate the cube on x axis
-		theta += 0.05F;
+		// Move on x and y coordinates
+		if(Key.keyPressed(KeyEvent.VK_D))
+			camera.position.setX( camera.position.getX() + speed );
+			
+		if(Key.keyPressed(KeyEvent.VK_A))
+			camera.position.setX( camera.position.getX() - speed );
 		
-		cube.getRotation().setX(theta);
-		cube.getRotation().setY(theta * 0.5F);
-		cube.getRotation().setZ(theta * 0.1F);
+		if(Key.keyPressed(KeyEvent.VK_UP))
+			camera.position.setY( camera.position.getY() - speed );
+			
+		if(Key.keyPressed(KeyEvent.VK_DOWN))
+			camera.position.setY( camera.position.getY() + speed );
 		
+		// Move on z coordinate
+		if(Key.keyPressed(KeyEvent.VK_W))
+			camera.position.setZ( camera.position.getZ() + speed );
+		
+		if(Key.keyPressed(KeyEvent.VK_S))
+			camera.position.setZ( camera.position.getZ() - speed );
+		
+		if(Key.keyPressed(KeyEvent.VK_RIGHT))
+			theta -= 0.05F;
+		
+		if(Key.keyPressed(KeyEvent.VK_LEFT))
+			theta += 0.05F;
+		
+		camera.rotation.setY( theta );
+			
 		// Do some magic
 		cube.toScreenCoordinates();
+		box.toScreenCoordinates();
 	}
 	
 	@Override
 	public void onRender(final Graphics2D g) {
 		// Render the cube
 		cube.fill(g);
+		box.fill(g);
 	}
 }
 

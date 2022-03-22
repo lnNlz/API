@@ -67,62 +67,33 @@ public final class Mathf {
 	}
 	
 	/**
-	 * Multiplies {@code Vector 3D float} to {@code Matrix 4x4 Float}
+	 * Perform {@code matrix multiplication} between two matrices
 	 * 
-	 * @param input
-	 * - {@code Vector 3D float} to multiply
+	 * @param matrix1
+	 * - {@code Matrix} to multiply
 	 * 
-	 * @param matrix
-	 * - {@code Matrix 4x4 Float} to multiply
+	 * @param matrix2
+	 * - {@code Matrix} to multiply
 	 * 
 	 * @return
-	 * - {@code output vector} if operation is successful; {@code null} otherwise
+	 * {@code Output} if operation is successful; {@code null} if not
 	 */
-	public static Vec3F multiplyVecToMat(final Vec3F input, final MatrixF matrix) {
+	public static Matrix multiplyMatrix(final Matrix matrix1, final Matrix matrix2) {
 		// Invalid size
-		if(matrix.size() != 4) return null;
+		if(matrix1.size() != matrix2.size()) return null;
 		
-		// Vector 3D float to return
-		final Vec3F output = new Vec3F();
+		// Size of the matrix
+		final int size = matrix1.size();
 		
-		// First element
-		output.setX(
-					input.getX() * matrix.get(0, 0) +
-					input.getY() * matrix.get(1, 0) +
-					input.getZ() * matrix.get(2, 0) +
-					matrix.get(3, 0)
-				);
+		// Matrix to return
+		final Matrix outputMatrix = new Matrix(size);
 		
-		// Second element
-		output.setY(
-				input.getX() * matrix.get(0, 1) +
-				input.getY() * matrix.get(1, 1) +
-				input.getZ() * matrix.get(2, 1) +
-				matrix.get(3, 1)
-				);
+		// Perform Matrix multiplication
+		for(int i = 0; i < size; i++)   
+			for(int j = 0; j < size; j++)
+				for(int k = 0; k < size; k++)  
+					outputMatrix.set(i, j, outputMatrix.get(i, j) + matrix1.get(i, k) * matrix2.get(k, j));
 		
-		// Third element
-		output.setZ(
-				input.getX() * matrix.get(0, 2) +
-				input.getY() * matrix.get(1, 2) +
-				input.getZ() * matrix.get(2, 2) +
-				matrix.get(3, 2)
-				);
-		
-		// Fourth element
-		final float w = 
-				input.getX() * matrix.get(0, 3) +
-				input.getY() * matrix.get(1, 3) +
-				input.getZ() * matrix.get(2, 3) +
-				matrix.get(3, 3);
-		
-		// Transform 4D back to 3D
-		if(w != 0.0F) {
-			output.setX(output.getX() / w);
-			output.setY(output.getY() / w);
-			output.setZ(output.getZ() / w);
-		}
-		
-		return output;
+		return outputMatrix;
 	}
 }

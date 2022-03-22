@@ -207,6 +207,44 @@ public class Vec3 {
 	}
 	
 	/**
+	 * Divides {@code every value} of this vector to every value of the {@code vector} given
+	 * 
+	 * @param anotherVec3
+	 * - Another {@code vector} to divide
+	 * 
+	 * @return
+	 * {@code Output} vector
+	 * 
+	 * @see #divide(int)
+	 */
+	public Vec3 divide(final Vec3 anotherVec3) {
+		return new Vec3(x / anotherVec3.x,
+						y / anotherVec3.y,
+						z / anotherVec3.z);
+	}
+	
+	/**
+	 * Divides {@code every value} of this vector to the {@code value} given
+	 * 
+	 * @param value
+	 * - {@code value} to divide
+	 * 
+	 * @return
+	 * {@code Output} vector
+	 */
+	public Vec3 divide(final int value) {
+		return divide(new Vec3(value));
+	}
+	
+	/**
+	 * @return
+	 * {@code Half} of every value of this {@code vector}
+	 */
+	public Vec3 half() {
+		return new Vec3( x >> 1, y >> 1, z >> 1 );
+	}
+	
+	/**
 	 * @return
 	 * {@code slope} of this vector
 	 * <br>

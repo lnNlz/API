@@ -97,4 +97,9 @@ public class Triangle3D {
 	public Triangle3D clone() {
 		return new Triangle3D(pointA, pointB, pointC);
 	}
+	
+	@Override
+	public String toString() {
+		return pointA + " , " + pointB + " , " + pointC;
+	}
 }

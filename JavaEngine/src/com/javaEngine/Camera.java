@@ -10,7 +10,11 @@ public final class Camera {
 	
 	// TODO: CLEAN
 	public Vec3F position = new Vec3F(0.0F, 0.0F, 0.0F);
+	public Vec3F rotation = new Vec3F(0.0F, 0.0F, 0.0F);
 	public Vec3F direction = new Vec3F(0.0F, 0.0F, -1.0F);
+	
+	public Vec3F up = new Vec3F(0.0F, 1.0F, 0.0F);
+	public Vec3F view = new Vec3F(0.0F, 0.0F, 1.0F);
 	
 	/**
 	 * @return

@@ -85,13 +85,6 @@ public final class Cube extends Mesh3D {
 						new Vec3F(size, 0.0F, 0.0F)
 					)
 		}, rotation);
-		
-		// Invalid size
-		if (size == 0.0F)
-			throw new IllegalArgumentException("Invalid size!");
-		
-		// Equal size
-		scale.set(new Vec3F(size == 0.0F ? 0.1F : size));
 	}
 	
 	public Cube(final float size) {
