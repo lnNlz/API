@@ -9,11 +9,17 @@ public final class Camera {
 	public static float FOV = ProjectionMatrix.DEFAULT_FIELD_OF_VIEW;
 	
 	// TODO: CLEAN
+	// Transform
 	public Vec3F position = new Vec3F(0.0F, 0.0F, 0.0F);
 	public Vec3F rotation = new Vec3F(0.0F, 0.0F, 0.0F);
+	
+	// Lighting direction
 	public Vec3F direction = new Vec3F(0.0F, 0.0F, -1.0F);
 	
+	// Up direction
 	public Vec3F up = new Vec3F(0.0F, 1.0F, 0.0F);
+	
+	// View direction
 	public Vec3F view = new Vec3F(0.0F, 0.0F, 1.0F);
 	
 	/**

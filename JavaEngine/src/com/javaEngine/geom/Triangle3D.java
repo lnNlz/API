@@ -6,6 +6,9 @@ import java.awt.Polygon;
 
 import com.javaEngine.math.Vec3F;
 
+/**
+ * A {@code Triangle} object that could be projected in a 3D space
+ */
 public class Triangle3D {
 	// Vertices
 	public final Vec3F pointA;

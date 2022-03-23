@@ -113,6 +113,9 @@ public final class JavaEngine extends Canvas implements Runnable {
 		// Manually called
 		if(thread == null) return;
 		
+		// Request window focus
+		requestFocus();
+		
 		long last_engineTime = System.nanoTime();
 		double engine_deltaTime = 0.0;
 		long engineTimer = System.currentTimeMillis();
@@ -433,6 +436,11 @@ public final class JavaEngine extends Canvas implements Runnable {
 		
 		engine = new JavaEngine();
 		engine.addKeyListener(new Key());
+		
+		final Mouse mouse = new Mouse();
+		engine.addMouseListener(mouse);
+		engine.addMouseWheelListener(mouse);
+		engine.addMouseMotionListener(mouse);
 		
 		return true;
 	}

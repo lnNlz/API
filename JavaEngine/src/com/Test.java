@@ -1,16 +1,18 @@
 package com;
 
+import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Robot;
 import java.awt.event.KeyEvent;
 
 import com.javaEngine.Camera;
 import com.javaEngine.JavaEngine;
 import com.javaEngine.Key;
+import com.javaEngine.Mouse;
 import com.javaEngine.Obj;
 import com.javaEngine.geom.Cube;
-import com.javaEngine.geom.Rectangle3D;
-import com.javaEngine.math.Vec3F;
 
 public final class Test {
 	public static void main(String[] args) {
@@ -35,15 +37,18 @@ public final class Test {
 
 class Testing implements Obj {
 	// Create the cube
-	private final Rectangle3D cube = new Rectangle3D(new Vec3F(2.0F, 2.0F, 1.0F));
-	private final Cube box = new Cube(2.0F);
+	private final Cube cube = new Cube(1.0F);
 	
+	private Robot robot;
 	public Testing() {
 		// Offset the cube
-		cube.getPosition().setZ(5.0F);
+		cube.getPosition().setZ(1.0F);
 		
-		box.getPosition().setX(-5.0F);
-		box.getPosition().setZ(0.0F);
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private float theta = 0.0F;
@@ -51,9 +56,8 @@ class Testing implements Obj {
 	@Override
 	public void onUpdate(double deltaTime) {
 		cube.clean();
-		box.clean();
 		// TODO: Allow independent rotation
-		final float speed = 1.0F * (float)deltaTime;
+		final float speed = 0.1F * (float)deltaTime;
 		final Camera camera = Camera.get();
 		
 		// Move on x and y coordinates
@@ -63,10 +67,10 @@ class Testing implements Obj {
 		if(Key.keyPressed(KeyEvent.VK_A))
 			camera.position.setX( camera.position.getX() - speed );
 		
-		if(Key.keyPressed(KeyEvent.VK_UP))
+		if(Key.keyPressed(KeyEvent.VK_DOWN))
 			camera.position.setY( camera.position.getY() - speed );
 			
-		if(Key.keyPressed(KeyEvent.VK_DOWN))
+		if(Key.keyPressed(KeyEvent.VK_UP))
 			camera.position.setY( camera.position.getY() + speed );
 		
 		// Move on z coordinate
@@ -76,24 +80,27 @@ class Testing implements Obj {
 		if(Key.keyPressed(KeyEvent.VK_S))
 			camera.position.setZ( camera.position.getZ() - speed );
 		
-		if(Key.keyPressed(KeyEvent.VK_RIGHT))
-			theta -= 0.05F;
+		final int w = JavaEngine.get().getWidth();
+		theta = (float)Mouse.getX() / (float)w * 5;
 		
-		if(Key.keyPressed(KeyEvent.VK_LEFT))
-			theta += 0.05F;
+		if(Key.keyPressed(KeyEvent.VK_ESCAPE))
+			System.exit(0);
 		
 		camera.rotation.setY( theta );
 			
 		// Do some magic
 		cube.toScreenCoordinates();
-		box.toScreenCoordinates();
 	}
 	
 	@Override
 	public void onRender(final Graphics2D g) {
 		// Render the cube
 		cube.fill(g);
-		box.fill(g);
+		
+		g.setFont(new Font("Arial", 0, 20));
+		g.setColor(Color.WHITE);
+		g.drawString(Camera.get().position.toString(), 0, 20);
+		g.drawString(Camera.get().rotation.toString(), 0, 40);
 	}
 }
 

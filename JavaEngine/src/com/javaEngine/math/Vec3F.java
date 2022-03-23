@@ -8,7 +8,8 @@ public class Vec3F {
 	protected float y;
 	protected float z;
 	
-	// TODO: Remove this w component
+	// Temporarily placed here
+	// TODO: Remove this
 	public float w = 1.0F;
 	
 	/**
@@ -321,6 +322,28 @@ public class Vec3F {
 	
 	/**
 	 * @return
+	 * {@code Vector 4D} equivalence of this {@code vector} containing
+	 * this' {@code x, y} and {@code z} components having {@code w} set to 1.0F
+	 * 
+	 * @see #toVector4DFloatRaw()
+	 */
+	public Vec4F toVector4DFloat() {
+		return new Vec4F(x, y, z, 1.0F);
+	}
+	
+	/**
+	 * @return
+	 * {@code Vector 4D} equivalence of this {@code vector} containing
+	 * this' {@code x, y} and {@code z} components having {@code w} set to 0.0F
+	 * 
+	 * @see #toVector4DFloat()
+	 */
+	public Vec4F toVector4DFloatRaw() {
+		return new Vec4F(x, y, z, 0.0F);
+	}
+	
+	/**
+	 * @return
 	 * {@code Vector 3D} with this' {@code x}, {@code y} and {@code z} value
 	 */
 	public Vec3 toVector3D() {
@@ -344,7 +367,7 @@ public class Vec3F {
 	 * @return
 	 * {@code true} if values are equal; {@code false} otherwise
 	 */
-	public boolean equals(final Vec3 anotherVec3F) {
+	public boolean equals(final Vec3F anotherVec3F) {
 		return x == anotherVec3F.x && y == anotherVec3F.y && z == anotherVec3F.z;
 	}
 	
@@ -353,7 +376,7 @@ public class Vec3F {
 	 * {@code true} if values are zero; {@code false} otherwise
 	 */
 	public boolean isZero() {
-		return x == 0.0 && y == 0.0 && z == 0.0;
+		return x == 0.0F && y == 0.0F && z == 0.0F;
 	}
 	
 	/**

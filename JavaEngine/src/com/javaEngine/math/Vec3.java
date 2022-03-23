@@ -317,6 +317,15 @@ public class Vec3 {
 	
 	/**
 	 * @return
+	 * {@code Vector 4D} equivalence of this {@code vector} containing
+	 * this' {@code x, y} and {@code z} components having {@code w} set to 1.0F
+	 */
+	public Vec4F toVector4DFloat() {
+		return new Vec4F(x, y, z, 1.0F);
+	}
+	
+	/**
+	 * @return
 	 * {@code Vector 3D Float} with this' {@code x}, {@code y} and {@code z} value
 	 */
 	public Vec3F toVector3DF() {
